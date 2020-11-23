@@ -1,0 +1,32 @@
+{
+	"name": "LoadTicketSalesFact",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "GetTicketSalesFact",
+						"type": "DatasetReference"
+					},
+					"name": "GetTicketSales"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DWTicketSalesFact",
+						"type": "DatasetReference"
+					},
+					"name": "DWTicketSalesFact"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SelectFactData"
+				}
+			],
+			"script": "source(output(\n\t\tSale_ID as integer,\n\t\tEvent_ID as integer,\n\t\tVenue_ID as integer,\n\t\tTicket_Type_ID as integer,\n\t\tChannel_ID as integer,\n\t\tCustomer_ID as integer,\n\t\tSold_By_Provider_ID as integer,\n\t\tQuantity as integer,\n\t\tPrice as decimal(18,2),\n\t\t{Sales Total} as decimal(18,2),\n\t\t{Date Sold} as date,\n\t\t{Seat Number} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetTicketSales\nGetTicketSales select(mapColumn(\n\t\tSale_ID,\n\t\tEvent_ID,\n\t\tVenue_ID,\n\t\tTicket_Type_ID,\n\t\tChannel_ID,\n\t\tCustomer_ID,\n\t\tSold_By_Provider_ID,\n\t\tQuantity,\n\t\tPrice,\n\t\t{Sales Total},\n\t\t{Date Sold},\n\t\t{Seat Number}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectFactData\nSelectFactData sink(input(\n\t\tSale_ID as integer,\n\t\tEvent_ID as integer,\n\t\tVenue_ID as integer,\n\t\tTicket_Type_ID as integer,\n\t\tChannel_ID as integer,\n\t\tCustomer_ID as integer,\n\t\tSold_By_Provider_ID as integer,\n\t\tQuantity as integer,\n\t\tPrice as decimal(18,2),\n\t\t{Sales Total} as decimal(18,2),\n\t\t{Date Sold} as date,\n\t\t{Seat Number} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> DWTicketSalesFact"
+		}
+	}
+}

@@ -1,0 +1,57 @@
+{
+	"name": "DWEventDim",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OrionTransactionDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Event_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Venue_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Description",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Start_Date",
+				"type": "date"
+			},
+			{
+				"name": "End_Date",
+				"type": "date"
+			},
+			{
+				"name": "Event_Type_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Venue Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Event Type",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dw",
+			"table": "Events"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

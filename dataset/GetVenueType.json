@@ -1,0 +1,27 @@
+{
+	"name": "GetVenueType",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OrionTransactionDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Venue_Type_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Venue Type",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Venue Type"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

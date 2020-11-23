@@ -1,0 +1,85 @@
+{
+	"name": "LoadVenuesDimension",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "GetVenue",
+						"type": "DatasetReference"
+					},
+					"name": "GetVenues"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetLocationDim",
+						"type": "DatasetReference"
+					},
+					"name": "GetLocations"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetCountryDim",
+						"type": "DatasetReference"
+					},
+					"name": "GetCountry"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetState",
+						"type": "DatasetReference"
+					},
+					"name": "GetState"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetProvider",
+						"type": "DatasetReference"
+					},
+					"name": "GetProviders"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetVenueType",
+						"type": "DatasetReference"
+					},
+					"name": "GetVenueType"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DWVenueDim",
+						"type": "DatasetReference"
+					},
+					"name": "DWVenuesDim"
+				}
+			],
+			"transformations": [
+				{
+					"name": "JoinCountry"
+				},
+				{
+					"name": "JoinState"
+				},
+				{
+					"name": "GeoData"
+				},
+				{
+					"name": "JoinGeoData"
+				},
+				{
+					"name": "JoinProviders"
+				},
+				{
+					"name": "JoinVenueType"
+				},
+				{
+					"name": "RefineVenueData"
+				}
+			],
+			"script": "source(output(\n\t\tVenue_ID as integer,\n\t\tProvider_ID as integer,\n\t\tName as string,\n\t\tLocation_ID as integer,\n\t\tMax_Capacity as integer,\n\t\tSquare_Footage as integer,\n\t\tMin_Capacity as integer,\n\t\tMax_Synchronous_Events as integer,\n\t\tVenue_Type_ID as integer,\n\t\tGuest_Internet as boolean,\n\t\tFood_Services as boolean,\n\t\tBar_Services as boolean\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetVenues\nsource(output(\n\t\tLocation_ID as integer,\n\t\tAddress as string,\n\t\t{Address 2} as string,\n\t\tCity as string,\n\t\tState_Prov_ID as integer,\n\t\tPostalCode as string,\n\t\tCountry_ID as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetLocations\nsource(output(\n\t\tCountry_ID as integer,\n\t\tCountry as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetCountry\nsource(output(\n\t\tState_Prov_ID as integer,\n\t\t{State/Province} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetState\nsource(output(\n\t\tProvider_ID as integer,\n\t\tName as string,\n\t\tProvider_Type_ID as integer,\n\t\tLocation_ID as integer,\n\t\tEmail as string,\n\t\tPhone as string,\n\t\t{Web Site} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetProviders\nsource(output(\n\t\tVenue_Type_ID as integer,\n\t\t{Venue Type} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetVenueType\nJoinState, GetCountry join(GetLocations@Country_ID == GetCountry@Country_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinCountry\nGetLocations, GetState join(GetLocations@State_Prov_ID == GetState@State_Prov_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinState\nJoinCountry select(mapColumn(\n\t\tLocation_ID,\n\t\tAddress,\n\t\t{Address 2},\n\t\tCity,\n\t\tState_Prov_ID = GetLocations@State_Prov_ID,\n\t\tPostalCode,\n\t\tCountry_ID = GetLocations@Country_ID,\n\t\t{State/Province},\n\t\tCountry\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> GeoData\nJoinProviders, GeoData join(GetVenues@Location_ID == GeoData@Location_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinGeoData\nJoinVenueType, GetProviders join(GetVenues@Provider_ID == GetProviders@Provider_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinProviders\nGetVenues, GetVenueType join(GetVenues@Venue_Type_ID == GetVenueType@Venue_Type_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinVenueType\nJoinGeoData select(mapColumn(\n\t\tVenue_ID,\n\t\tProvider_ID = GetVenues@Provider_ID,\n\t\tName = GetVenues@Name,\n\t\tLocation_ID = GetVenues@Location_ID,\n\t\tMax_Capacity,\n\t\tSquare_Footage,\n\t\tMin_Capacity,\n\t\tMax_Synchronous_Events,\n\t\tVenue_Type_ID = GetVenues@Venue_Type_ID,\n\t\tGuest_Internet,\n\t\tFood_Services,\n\t\tBar_Services,\n\t\tAddress,\n\t\t{Address 2},\n\t\tCity,\n\t\t{State/Province},\n\t\tPostalCode,\n\t\tCountry,\n\t\t{Provider Name} = GetProviders@Name,\n\t\t{Venue Type}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> RefineVenueData\nRefineVenueData sink(input(\n\t\tVenue_ID as integer,\n\t\tProvider_ID as integer,\n\t\tName as string,\n\t\tLocation_ID as integer,\n\t\tMax_Capacity as integer,\n\t\tSquare_Footage as integer,\n\t\tMin_Capacity as integer,\n\t\tMax_Synchronous_Events as integer,\n\t\tVenue_Type_ID as integer,\n\t\tGuest_Internet as boolean,\n\t\tFood_Services as boolean,\n\t\tBar_Services as boolean,\n\t\tAddress as string,\n\t\t{Address 2} as string,\n\t\tCity as string,\n\t\t{State/Province} as string,\n\t\tPostalCode as string,\n\t\tCountry as string,\n\t\t{Provider Name} as string,\n\t\t{Venue Type} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> DWVenuesDim"
+		}
+	}
+}

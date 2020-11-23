@@ -1,0 +1,42 @@
+{
+	"name": "GetReseller",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OrionTransactionDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Provider_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Reseller_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Start_Date",
+				"type": "date"
+			},
+			{
+				"name": "End_Date",
+				"type": "date"
+			},
+			{
+				"name": "Comission",
+				"type": "decimal",
+				"precision": 2,
+				"scale": 2
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Reseller Agreement"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,27 @@
+{
+	"name": "GetEventType",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OrionTransactionDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Event_Type_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Event Type",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Event Type"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

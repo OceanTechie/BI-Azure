@@ -1,0 +1,106 @@
+{
+	"name": "DWVenueDim",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OrionTransactionDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Venue_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Provider_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Location_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Max_Capacity",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Square_Footage",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Min_Capacity",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Max_Synchronous_Events",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Venue_Type_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Guest_Internet",
+				"type": "bit"
+			},
+			{
+				"name": "Food_Services",
+				"type": "bit"
+			},
+			{
+				"name": "Bar_Services",
+				"type": "bit"
+			},
+			{
+				"name": "Address",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Address 2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "City",
+				"type": "nvarchar"
+			},
+			{
+				"name": "State/Province",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PostalCode",
+				"type": "nchar"
+			},
+			{
+				"name": "Country",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Provider Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Venue Type",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dw",
+			"table": "Venues"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

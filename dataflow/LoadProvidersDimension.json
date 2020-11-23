@@ -1,0 +1,88 @@
+{
+	"name": "LoadProvidersDimension",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "GetProvider",
+						"type": "DatasetReference"
+					},
+					"name": "GetProviders"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetLocationDim",
+						"type": "DatasetReference"
+					},
+					"name": "GetLocations"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetState",
+						"type": "DatasetReference"
+					},
+					"name": "GetStates"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetCountryDim",
+						"type": "DatasetReference"
+					},
+					"name": "GetCountry"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetProviderType",
+						"type": "DatasetReference"
+					},
+					"name": "GetProviderType"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetReseller",
+						"type": "DatasetReference"
+					},
+					"name": "GetResellersOJ"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DWProviderDim",
+						"type": "DatasetReference"
+					},
+					"name": "DestinationProvidersDWDim"
+				}
+			],
+			"transformations": [
+				{
+					"name": "JoinStates"
+				},
+				{
+					"name": "JoinCountry"
+				},
+				{
+					"name": "GeoData"
+				},
+				{
+					"name": "JoinGeo"
+				},
+				{
+					"name": "Providers"
+				},
+				{
+					"name": "DWProvidersDim"
+				},
+				{
+					"name": "JoinResellers"
+				},
+				{
+					"name": "DWProvidersDimFinal"
+				}
+			],
+			"script": "source(output(\n\t\tProvider_ID as integer,\n\t\tName as string,\n\t\tProvider_Type_ID as integer,\n\t\tLocation_ID as integer,\n\t\tEmail as string,\n\t\tPhone as string,\n\t\t{Web Site} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetProviders\nsource(output(\n\t\tLocation_ID as integer,\n\t\tAddress as string,\n\t\t{Address 2} as string,\n\t\tCity as string,\n\t\tState_Prov_ID as integer,\n\t\tPostalCode as string,\n\t\tCountry_ID as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetLocations\nsource(output(\n\t\tState_Prov_ID as integer,\n\t\t{State/Province} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetStates\nsource(output(\n\t\tCountry_ID as integer,\n\t\tCountry as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetCountry\nsource(output(\n\t\tType_ID as integer,\n\t\t{Provider Type} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetProviderType\nsource(output(\n\t\tProvider_ID as integer,\n\t\tReseller_ID as integer,\n\t\tStart_Date as date,\n\t\tEnd_Date as date,\n\t\tComission as decimal(2,2)\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> GetResellersOJ\nGetLocations, GetStates join(GetLocations@State_Prov_ID == GetStates@State_Prov_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinStates\nJoinStates, GetCountry join(GetLocations@Country_ID == GetCountry@Country_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinCountry\nJoinCountry select(mapColumn(\n\t\tLocation_ID,\n\t\tAddress,\n\t\t{Address 2},\n\t\tCity,\n\t\tPostalCode,\n\t\t{State/Province},\n\t\tCountry\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> GeoData\nGetProviders, GeoData join(GetProviders@Location_ID == GeoData@Location_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinGeo\nJoinGeo select(mapColumn(\n\t\tProvider_ID,\n\t\tName,\n\t\tProvider_Type_ID,\n\t\tLocation_ID = GetProviders@Location_ID,\n\t\tEmail,\n\t\tPhone,\n\t\t{Web Site},\n\t\tAddress,\n\t\t{Address 2},\n\t\tCity,\n\t\t{State/Province},\n\t\tPostalCode,\n\t\tCountry\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Providers\nProviders, GetProviderType join(Provider_Type_ID == Type_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> DWProvidersDim\nDWProvidersDim, GetResellersOJ join(Providers@Provider_ID == Reseller_ID,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> JoinResellers\nJoinResellers select(mapColumn(\n\t\tProvider_ID = Providers@Provider_ID,\n\t\tName,\n\t\tProvider_Type_ID,\n\t\tLocation_ID,\n\t\tEmail,\n\t\tPhone,\n\t\t{Web Site},\n\t\tAddress,\n\t\t{Address 2},\n\t\tCity,\n\t\t{State/Province},\n\t\tPostalCode,\n\t\tCountry,\n\t\tComission,\n\t\t{Provider Type}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DWProvidersDimFinal\nDWProvidersDimFinal sink(input(\n\t\tProvider_ID as integer,\n\t\tName as string,\n\t\tProvider_Type_ID as integer,\n\t\tLocation_ID as integer,\n\t\tEmail as string,\n\t\tPhone as string,\n\t\t{Web Site} as string,\n\t\tAddress as string,\n\t\t{Address 2} as string,\n\t\tCity as string,\n\t\t{State/Province} as string,\n\t\tPostalCode as string,\n\t\tCountry as string,\n\t\tComission as decimal(2,2),\n\t\t{Provider Type} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> DestinationProvidersDWDim"
+		}
+	}
+}

@@ -1,0 +1,78 @@
+{
+	"name": "DWTicketSalesFact",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OrionTransactionDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Sale_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Event_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Venue_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Ticket_Type_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Channel_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Customer_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Sold_By_Provider_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Quantity",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Price",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "Sales Total",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "Date Sold",
+				"type": "date"
+			},
+			{
+				"name": "Seat Number",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dw",
+			"table": "Ticket Sales"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

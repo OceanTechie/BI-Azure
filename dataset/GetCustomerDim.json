@@ -1,0 +1,68 @@
+{
+	"name": "GetCustomerDim",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OrionTransactionDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Customer_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "First Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Last Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Middle Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Suffix",
+				"type": "nchar"
+			},
+			{
+				"name": "Prefix",
+				"type": "nchar"
+			},
+			{
+				"name": "DOB",
+				"type": "date"
+			},
+			{
+				"name": "Location_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Email",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Primary Phone",
+				"type": "nchar"
+			},
+			{
+				"name": "Mobile Phone",
+				"type": "nchar"
+			},
+			{
+				"name": "Optout",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Customer"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

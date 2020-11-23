@@ -1,0 +1,92 @@
+{
+	"name": "DWCustomerDim",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OrionTransactionDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Customer_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "First Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Last Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Middle Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Suffix",
+				"type": "nchar"
+			},
+			{
+				"name": "Prefix",
+				"type": "nchar"
+			},
+			{
+				"name": "DOB",
+				"type": "date"
+			},
+			{
+				"name": "Email",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Primary Phone",
+				"type": "nchar"
+			},
+			{
+				"name": "Mobile Phone",
+				"type": "nchar"
+			},
+			{
+				"name": "Optout",
+				"type": "varchar"
+			},
+			{
+				"name": "Location_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Address",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Address 2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "City",
+				"type": "nvarchar"
+			},
+			{
+				"name": "State/Province",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PostalCode",
+				"type": "nchar"
+			},
+			{
+				"name": "Country",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dw",
+			"table": "Customers"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

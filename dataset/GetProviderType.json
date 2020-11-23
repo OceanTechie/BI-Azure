@@ -1,0 +1,27 @@
+{
+	"name": "GetProviderType",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OrionTransactionDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Type_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Provider Type",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Provider Type"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

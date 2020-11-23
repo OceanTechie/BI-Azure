@@ -1,0 +1,55 @@
+{
+	"name": "LoadEventDimension",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "GetVenue",
+						"type": "DatasetReference"
+					},
+					"name": "Venues"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetEventType",
+						"type": "DatasetReference"
+					},
+					"name": "EventType"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetEvent",
+						"type": "DatasetReference"
+					},
+					"name": "Events"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DWEventDim",
+						"type": "DatasetReference"
+					},
+					"name": "DWEventDimFinal"
+				}
+			],
+			"transformations": [
+				{
+					"name": "JoinEventType"
+				},
+				{
+					"name": "GetEvents"
+				},
+				{
+					"name": "JoinEventsVenue"
+				},
+				{
+					"name": "DWEventsDim"
+				}
+			],
+			"script": "source(output(\n\t\tVenue_ID as integer,\n\t\tProvider_ID as integer,\n\t\tName as string,\n\t\tLocation_ID as integer,\n\t\tMax_Capacity as integer,\n\t\tSquare_Footage as integer,\n\t\tMin_Capacity as integer,\n\t\tMax_Synchronous_Events as integer,\n\t\tVenue_Type_ID as integer,\n\t\tGuest_Internet as boolean,\n\t\tFood_Services as boolean,\n\t\tBar_Services as boolean\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> Venues\nsource(output(\n\t\tEvent_Type_ID as integer,\n\t\t{Event Type} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> EventType\nsource(output(\n\t\tEvent_ID as integer,\n\t\tVenue_ID as integer,\n\t\tName as string,\n\t\tDescription as string,\n\t\tStart_Date as date,\n\t\tEnd_Date as date,\n\t\tEvent_Type_ID as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> Events\nEvents, EventType join(Events@Event_Type_ID == EventType@Event_Type_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinEventType\nJoinEventType select(mapColumn(\n\t\tEvent_ID,\n\t\tVenue_ID,\n\t\tName,\n\t\tDescription,\n\t\tStart_Date,\n\t\tEnd_Date,\n\t\tEvent_Type_ID = Events@Event_Type_ID,\n\t\t{Event Type}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> GetEvents\nGetEvents, Venues join(GetEvents@Venue_ID == Venues@Venue_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinEventsVenue\nJoinEventsVenue select(mapColumn(\n\t\tEvent_ID,\n\t\tVenue_ID = GetEvents@Venue_ID,\n\t\tName = GetEvents@Name,\n\t\tDescription,\n\t\tStart_Date,\n\t\tEnd_Date,\n\t\t{Event Type},\n\t\tEvent_Type_ID,\n\t\t{Venue Name} = Venues@Name\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DWEventsDim\nDWEventsDim sink(input(\n\t\tEvent_ID as integer,\n\t\tVenue_ID as integer,\n\t\tName as string,\n\t\tDescription as string,\n\t\tStart_Date as date,\n\t\tEnd_Date as date,\n\t\tEvent_Type_ID as integer,\n\t\t{Venue Name} as string,\n\t\t{Event Type} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> DWEventDimFinal"
+		}
+	}
+}

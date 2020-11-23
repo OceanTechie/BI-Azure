@@ -1,0 +1,27 @@
+{
+	"name": "GetState",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OrionTransactionDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "State_Prov_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "State/Province",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "State"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

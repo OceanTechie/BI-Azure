@@ -1,0 +1,45 @@
+{
+	"name": "StateTrans",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureCSVTransFiles",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "State.csv",
+				"container": "cprojectblobs"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "State_Prov_ID",
+				"type": "String"
+			},
+			{
+				"name": "State Province",
+				"type": "String"
+			},
+			{
+				"name": "Country_ID",
+				"type": "String"
+			},
+			{
+				"name": "Population",
+				"type": "String"
+			},
+			{
+				"name": "Junk",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

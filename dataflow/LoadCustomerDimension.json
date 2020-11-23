@@ -1,0 +1,65 @@
+{
+	"name": "LoadCustomerDimension",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "GetCustomerDim",
+						"type": "DatasetReference"
+					},
+					"name": "CustomersDim"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetLocationDim",
+						"type": "DatasetReference"
+					},
+					"name": "LocationsDim"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetState",
+						"type": "DatasetReference"
+					},
+					"name": "States"
+				},
+				{
+					"dataset": {
+						"referenceName": "GetCountryDim",
+						"type": "DatasetReference"
+					},
+					"name": "Country"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DWCustomerDim",
+						"type": "DatasetReference"
+					},
+					"name": "DWCustomerDIM"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Join1"
+				},
+				{
+					"name": "Join2"
+				},
+				{
+					"name": "Locations"
+				},
+				{
+					"name": "JoinLocations"
+				},
+				{
+					"name": "Select1"
+				}
+			],
+			"script": "source(output(\n\t\tCustomer_ID as integer,\n\t\t{First Name} as string,\n\t\t{Last Name} as string,\n\t\t{Middle Name} as string,\n\t\tSuffix as string,\n\t\tPrefix as string,\n\t\tDOB as date,\n\t\tLocation_ID as integer,\n\t\tEmail as string,\n\t\t{Primary Phone} as string,\n\t\t{Mobile Phone} as string,\n\t\tOptout as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> CustomersDim\nsource(output(\n\t\tLocation_ID as integer,\n\t\tAddress as string,\n\t\t{Address 2} as string,\n\t\tCity as string,\n\t\tState_Prov_ID as integer,\n\t\tPostalCode as string,\n\t\tCountry_ID as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> LocationsDim\nsource(output(\n\t\tState_Prov_ID as integer,\n\t\t{State/Province} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> States\nsource(output(\n\t\tCountry_ID as integer,\n\t\tCountry as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> Country\nJoin2, States join(LocationsDim@State_Prov_ID == States@State_Prov_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join1\nLocationsDim, Country join(LocationsDim@Country_ID == Country@Country_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join2\nJoin1 select(mapColumn(\n\t\tLocation_ID,\n\t\tAddress,\n\t\t{Address 2},\n\t\tCity,\n\t\tPostalCode,\n\t\tCountry,\n\t\t{State/Province}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Locations\nCustomersDim, Locations join(CustomersDim@Location_ID == Locations@Location_ID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinLocations\nJoinLocations select(mapColumn(\n\t\tCustomer_ID,\n\t\t{First Name},\n\t\t{Last Name},\n\t\t{Middle Name},\n\t\tSuffix,\n\t\tPrefix,\n\t\tDOB,\n\t\tEmail,\n\t\t{Primary Phone},\n\t\t{Mobile Phone},\n\t\tOptout,\n\t\tLocation_ID = Locations@Location_ID,\n\t\tAddress,\n\t\t{Address 2},\n\t\tCity,\n\t\tPostalCode,\n\t\tCountry,\n\t\t{State/Province}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 sink(input(\n\t\tCustomer_ID as integer,\n\t\t{First Name} as string,\n\t\t{Last Name} as string,\n\t\t{Middle Name} as string,\n\t\tSuffix as string,\n\t\tPrefix as string,\n\t\tDOB as date,\n\t\tEmail as string,\n\t\t{Primary Phone} as string,\n\t\t{Mobile Phone} as string,\n\t\tOptout as string,\n\t\tLocation_ID as integer,\n\t\tAddress as string,\n\t\t{Address 2} as string,\n\t\tCity as string,\n\t\t{State/Province} as string,\n\t\tPostalCode as string,\n\t\tCountry as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> DWCustomerDIM"
+		}
+	}
+}

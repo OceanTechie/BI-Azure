@@ -1,0 +1,28 @@
+{
+	"name": "LoadChannelDimension",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "GetChannelDim",
+						"type": "DatasetReference"
+					},
+					"name": "SalesChannelDim"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DWChannelDim",
+						"type": "DatasetReference"
+					},
+					"name": "SalesChannelOut"
+				}
+			],
+			"transformations": [],
+			"script": "source(output(\n\t\tChannel_ID as integer,\n\t\t{Channel Type} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SalesChannelDim\nSalesChannelDim sink(input(\n\t\tChannel_ID as integer,\n\t\t{Channel Type} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tpreSQLs:['delete from dw.[Ticket Sales];\\ndelete from dw.Customers;\\ndelete from dw.[Events];\\ndelete from dw.Providers;\\ndelete from dw.[Sales Channel];\\ndelete from dw.Venues;\\n'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> SalesChannelOut"
+		}
+	}
+}

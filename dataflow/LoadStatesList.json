@@ -1,0 +1,32 @@
+{
+	"name": "LoadStatesList",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "StateTrans",
+						"type": "DatasetReference"
+					},
+					"name": "CSVStates"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "GetState",
+						"type": "DatasetReference"
+					},
+					"name": "TransStates"
+				}
+			],
+			"transformations": [
+				{
+					"name": "LoadStates"
+				}
+			],
+			"script": "source(output(\n\t\tState_Prov_ID as integer,\n\t\t{State Province} as string,\n\t\tCountry_ID as integer,\n\t\tPopulation as string,\n\t\tJunk as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> CSVStates\nCSVStates select(mapColumn(\n\t\tState_Prov_ID,\n\t\t{State Province}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> LoadStates\nLoadStates sink(input(\n\t\tState_Prov_ID as integer,\n\t\t{State/Province} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tpreSQLs:['delete from dbo.state'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> TransStates"
+		}
+	}
+}
